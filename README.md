@@ -1,4 +1,4 @@
-# Transboundary emissions
+# Transboundary damages
 Supporting code and data for analysis on health damages incurred from transferred pollution in the U.S.
 
 # Emissions data
