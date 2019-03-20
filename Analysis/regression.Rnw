@@ -1,0 +1,249 @@
+\documentclass[a4paper]{article}
+
+\usepackage{amsmath}
+\usepackage{fullpage}
+\usepackage{pdflscape}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\section{Basic OLS model}
+\begin{multline*}
+log(EI_{i,t}) = C_{i,t} + C_{i,t}*G^{C}_{i,t} + G^{C}_{i,t}*SC_{i,t} + NG_{i,t} + NG_{i,t}*G^{NG}_{i,t} + Pop_{i,t} \\
+  + M_{i} + Pov_{i,t} + NW_{i,t} + Pov_{i,t}*NW_{i,t} + A_{i,t} + \Delta A_{i,t}+ R_{i} + \alpha_{i} + \delta_{t} + \epsilon_{i,t}
+\end{multline*}
+
+\noindent with following variables defined for county $i$ in year $t$: \\
+\indent$EI_{i,t}$ = Export / Import damage ratio\\
+\indent$C_{i,t}$ = flag indicating presence of coal plant [0:no plant, 1:has plant]\\
+\indent$G^{C}_{i,t}$ = amount of coal generation (TWh) \\
+\indent$SC_{i,t}$ = fraction of coal generation that is subject to SO2 emissions controls [0-1]\\
+\indent$NG_{i,t}$ = flag indicating presence of coal plant [0:no plant, 1:has plant]\\
+\indent$G^{NG}_{i,t}$ = natural gas generation (TWh) \\
+\indent$Pop_{i,t}$ = total population (millions)\\
+\indent$M_{i}$ = Census designated Metropolitan Statistical Area [0:non-metro,1:metro]\\
+\indent$Pov_{i,t}$ = percent of population living under the poverty line (\%)\\
+\indent$NW_{i,t}$ = percent of population that identifies as nonwhite (\%)\\
+\indent$A_{i,t}$ = attainment status [0:attainment, 1:non-attainment]  \\
+\indent$\Delta A_{i,t}$ = change in attainment status from prior period  \\
+\indent\indent\indent[-1:moved out of attainment, 0:no change, 1:moved into attainment]\\
+\indent$R_{i}$ = region of country [MW, NE, SE, SW, W]\\
+\indent$\alpha_{i}$ = county fixed effects \\
+\indent$\delta_{t}$ = year fixed effects \\
+\indent$\epsilon_{i,t}$ = unobserved error \\
+
+<<echo=FALSE, cache=TRUE>>=
+library(stargazer)
+load("~/Documents/Carnegie Mellon/Box Sync/Research/Environmental justice/Regressions.RData")
+@
+
+<<echo=FALSE>>=
+
+# set order and names
+cov.order <- c("coal", "gas", "population", "SMSA", "income", "Poverty", "nonwhite", "PM25")
+
+cov.labels <- c("Has coal plant", "Coal generation (TWh)", "Coal gen. x share with pollution control", 
+                "Has gas plant", "Natural gas generation (TWh)", 
+                "Population (millions)", 
+                "Metropolitan area",
+                "Median income (thousand \\$)",
+                "Median income x percent nonwhite",
+                "Population under poverty line (\\%)",
+                "Poverty x percent nonwhite",
+                "Nonwhite population (\\%)", 
+                "In non-attainment",
+                "Moved into attainment", 
+                "Intercept")
+
+#                "Region: Mid-Atlantic", "Region: Midwest", "Region: Mountain", 
+#                "Region: New England", "Region: Northwest", "Region: NY/NJ",
+#                "Region: South", "Region: Southeast", "Region: Southwest", 
+#                "Year: 2011", "Year: 2014", "Intercept")
+
+notes <- "Baseline region is Great Plains; baseline year is 2008"
+@
+
+
+
+\newpage
+
+\pagenumbering{gobble}
+% remove page number
+
+\begin{landscape}
+\centering
+<<OLS base, echo=FALSE, results=tex, eval=TRUE, cache=TRUE>>=
+
+stargazer(EI.log, EI.log.income, EI.log.attain1, EI.log.attain2, EI.log.attain3, EI.log.attain4,
+        dep.var.caption = "",
+        dep.var.labels = c("log(exports/imports)"),
+        column.separate = c(1, 1, 1),
+        keep.stat = c("n", "rsq"),
+        omit = c("county.name", "epa.region", "year"),
+        omit.labels = c("County fixed effects", "Region fixed effects", "Year fixed effects"),
+        title = "OLS log of Export/Import ratio",
+        order = cov.order,
+        covariate.labels = cov.labels,
+        #notes = notes,
+        column.sep.width = "12pt",
+        font.size="small",
+        no.space=T)
+@
+
+
+\newpage
+
+\pagenumbering{gobble}
+% remove page number
+
+\centering
+<<OLS base, echo=FALSE, results=tex, eval=TRUE, cache=TRUE>>=
+
+stargazer(OE.log, OE.log.income, OE.log.attain1, OE.log.attain2, OE.log.attain3, OE.log.attain4,
+        dep.var.caption = "",
+        dep.var.labels = c("log(self-inflicted/exports)"),
+        column.separate = c(1, 1, 1),
+        keep.stat = c("n", "rsq"),
+        omit = c("county.name", "epa.region", "year"),
+        omit.labels = c("County fixed effects", "Region fixed effects", "Year fixed effects"),
+        title = "OLS log of Own/Export ratio",
+        order = cov.order,
+        covariate.labels = cov.labels,
+        #notes = notes,
+        column.sep.width = "12pt",
+        font.size="small",
+        no.space=T)
+@
+
+\newpage
+
+\pagenumbering{gobble}
+% remove page number
+
+\centering
+<<OLS base, echo=FALSE, results=tex, eval=TRUE, cache=TRUE>>=
+stargazer(OI.log, OI.log.income, OI.log.attain1, OI.log.attain2, OI.log.attain3, OI.log.attain4,
+        dep.var.caption = "",
+        dep.var.labels = c("log(self-inflicted/imports)"),
+        column.separate = c(1, 1, 1),
+        keep.stat = c("n", "rsq"),
+        omit = c("county.name", "epa.region", "year"),
+        omit.labels = c("County fixed effects", "Region fixed effects", "Year fixed effects"),
+        title = "OLS log of Own/Import ratio",
+        order = cov.order,
+        covariate.labels = cov.labels,
+        #notes = notes,
+        column.sep.width = "12pt",
+        font.size="small",
+        no.space=T)
+@
+
+\newpage
+
+\pagenumbering{gobble}
+% remove page number
+
+\centering
+
+<<OLS base, echo=FALSE, results=tex, eval=TRUE, cache=TRUE>>=
+
+stargazer(Export.log, Export.log.income, Export.log.attain1, Export.log.attain2,
+        dep.var.caption = "",
+        dep.var.labels = c("log(Exports)"),
+        column.separate = c(1, 1, 1),
+        keep.stat = c("n", "rsq"),
+        omit = c("county.name", "epa.region", "year"),
+        omit.labels = c("County fixed effects", "Region fixed effects", "Year fixed effects"),
+        title = "OLS log of Exports",
+        order = cov.order,
+        covariate.labels = cov.labels,
+        #notes = notes,
+        column.sep.width = "12pt",
+        font.size="small",
+        no.space=T)
+@
+
+\newpage
+
+\pagenumbering{gobble}
+% remove page number
+
+\centering
+
+<<OLS base, echo=FALSE, results=tex, eval=TRUE, cache=TRUE>>=
+
+stargazer(Import.log, Import.log.income, Import.log.attain1, Import.log.attain2,
+        dep.var.caption = "",
+        dep.var.labels = c("log(Imports)"),
+        column.separate = c(1, 1, 1),
+        keep.stat = c("n", "rsq"),
+        omit = c("county.name", "epa.region", "year"),
+        omit.labels = c("County fixed effects", "Region fixed effects", "Year fixed effects"),
+        title = "OLS log of Imports",
+        order = cov.order,
+        covariate.labels = cov.labels,
+        #notes = notes,
+        column.sep.width = "12pt",
+        font.size="small",
+        no.space=T)
+@
+
+\newpage
+
+\pagenumbering{gobble}
+% remove page number
+
+\centering
+
+<<OLS base, echo=FALSE, results=tex, eval=TRUE, cache=TRUE>>=
+
+stargazer(Own.log, Own.log.income, Own.log.attain1, Own.log.attain2,
+        dep.var.caption = "",
+        dep.var.labels = c("log(Own damages)"),
+        column.separate = c(1, 1, 1),
+        keep.stat = c("n", "rsq"),
+        omit = c("county.name", "epa.region", "year"),
+        omit.labels = c("County fixed effects", "Region fixed effects", "Year fixed effects"),
+        title = "OLS log of Own damages",
+        order = cov.order,
+        covariate.labels = cov.labels,
+        #notes = notes,
+        column.sep.width = "12pt",
+        font.size="small",
+        no.space=T)
+@
+
+\newpage
+
+\pagenumbering{gobble}
+% remove page number
+
+\centering
+<<OLS base, echo=FALSE, results=tex, eval=TRUE, cache=TRUE, eval=F>>=
+
+stargazer(EI.log, OI.log, OE.log,
+        dep.var.caption = "",
+        dep.var.labels = c("log(EI)  ", "log(OI)", "log(OE)"),
+        column.separate = c(1, 1, 1),
+        keep.stat = c("n", "rsq"),
+        omit = c("county.name", "epa.region", "year"),
+        omit.labels = c("County fixed effects", "Region fixed effects", "Year fixed effects"),
+        title = "OLS three ratios",
+        order = cov.order,
+        #covariate.labels = cov.labels,
+        column.sep.width = "12pt",
+        font.size="small",
+        #notes = notes,
+        no.space=T)
+@
+
+
+
+\end{landscape}
+\end{document}
+
+
+
+
+
+
